@@ -1,6 +1,6 @@
 package io.github.codestring.aegisbugle.application.domain.model;
 
-public enum BrokerName {
+public enum BrokerType {
     PULSAR,
     KAFKA,
     RABBITMQ

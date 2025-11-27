@@ -1,6 +1,6 @@
 package io.github.codestring.aegisbugle.config;
 
-import io.github.codestring.aegisbugle.application.domain.model.BrokerName;
+import io.github.codestring.aegisbugle.application.domain.model.BrokerType;
 import io.github.codestring.aegisbugle.application.domain.model.Environment;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,7 +16,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @AllArgsConstructor
 public class BugleProperties {
     private String serviceName;
-    private BrokerName brokerName;
+    private BrokerType brokerType;
     private String brokerUrl;
     private boolean enabled;
     private Environment environment;

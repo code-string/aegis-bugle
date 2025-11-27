@@ -25,9 +25,9 @@ public class BugleAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = "aegis.bugle", name = "broker-name", havingValue = "PULSAR", matchIfMissing = true)
+    @ConditionalOnProperty(prefix = "aegis.bugle", name = "broker-type", havingValue = "PULSAR", matchIfMissing = true)
     public PulsarClient pulsarClient(BugleProperties properties) throws PulsarClientException {
-//        log.info("Creating Pulsar client with properties {}", properties);
+        log.info("Creating Pulsar client with properties {}", properties);
         return PulsarClient.builder().
                 serviceUrl(properties.getBrokerUrl())
                 .operationTimeout(properties.getOperationTimeoutMs(), TimeUnit.MILLISECONDS)

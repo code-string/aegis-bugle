@@ -9,11 +9,12 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>io.github.code-string</groupId>
-    <artifactId>aegis-bugle</artifactId>
+    <artifactId>aegis-bugle-spring-boot-starter</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>aegis-bugle</name>
-    <description>aegis-bugle</description>
-    <url/>
+    <description>aegis-bugle Spring boot starter</description>
+    <packaging>jar</packaging>
+    <url>https://github.com/code-string/aegis-bugle</url>
 
     <properties>
         <java.version>17</java.version>
@@ -97,18 +98,6 @@
                             <version>${lombok-mapstruct-binding.version}</version>
                         </path>
                     </annotationProcessorPaths>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
                 </configuration>
             </plugin>
         </plugins>

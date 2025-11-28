@@ -1,7 +1,7 @@
 package io.github.codestring.aegisbugle.config;
 
-import io.github.codestring.aegisbugle.application.domain.model.BrokerType;
-import io.github.codestring.aegisbugle.application.domain.model.Environment;
+import io.github.codestring.aegisbugle.application.core.model.BrokerType;
+import io.github.codestring.aegisbugle.application.core.model.Environment;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

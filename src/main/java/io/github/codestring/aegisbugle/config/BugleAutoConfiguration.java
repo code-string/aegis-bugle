@@ -1,18 +1,20 @@
 package io.github.codestring.aegisbugle.config;
 
-import io.github.codestring.aegisbugle.adapter.out.AlertMapper;
-import io.github.codestring.aegisbugle.application.domain.service.BugleAlertService;
-import io.github.codestring.aegisbugle.application.port.out.BugleProducer;
+import io.github.codestring.aegisbugle.adapter.out.*;
+import io.github.codestring.aegisbugle.application.core.service.BugleAlertService;
+import io.github.codestring.aegisbugle.application.port.out.BuglePublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.shade.com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.pulsar.core.PulsarTemplate;
 
 import java.util.concurrent.TimeUnit;
 
@@ -24,8 +26,8 @@ import java.util.concurrent.TimeUnit;
 public class BugleAutoConfiguration {
 
     @Bean
-    @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = "aegis.bugle", name = "broker-type", havingValue = "PULSAR", matchIfMissing = true)
+    @ConditionalOnClass(PulsarTemplate.class)
+    @ConditionalOnProperty(prefix = "aegis.bugle", name = "broker-type", havingValue = "pulsar")
     public PulsarClient pulsarClient(BugleProperties properties) throws PulsarClientException {
         log.info("Creating Pulsar client with properties {}", properties);
         return PulsarClient.builder().
@@ -38,9 +40,16 @@ public class BugleAutoConfiguration {
     }
 
     @Bean
-    public BugleAlertService alertService(BugleProperties properties, BugleProducer bugleProducer, AlertMapper mapper){
+    public BugleAlertService alertService(BugleProperties properties, BuglePublisher buglePublisher, AlertMapper mapper){
         log.info("Creating alert service with properties {}", properties);
-        return new BugleAlertService(properties, bugleProducer, mapper);
+        return new BugleAlertService(properties, buglePublisher, mapper);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(BuglePublisher.class)
+    public NoOpPublisher noOpPublisher() {
+        log.warn("Aegis Bugle Starter is included but 'aegis.bugle.broker-type' is not set or invalid. No messages will be published.");
+        return new NoOpPublisher();
     }
 
     @Bean

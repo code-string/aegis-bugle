@@ -1,4 +1,4 @@
-package io.github.codestring.aegisbugle.application.domain.model;
+package io.github.codestring.aegisbugle.application.core.model;
 
 public enum Environment {
     DEV,

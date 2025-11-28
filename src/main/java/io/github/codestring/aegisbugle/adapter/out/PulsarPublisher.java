@@ -1,7 +1,7 @@
 package io.github.codestring.aegisbugle.adapter.out;
 
-import io.github.codestring.aegisbugle.application.domain.model.AlertEvent;
-import io.github.codestring.aegisbugle.application.port.out.BugleProducer;
+import io.github.codestring.aegisbugle.application.core.model.AlertEvent;
+import io.github.codestring.aegisbugle.application.port.out.BuglePublisher;
 import lombok.RequiredArgsConstructor;
 import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.PulsarClient;
@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
-@ConditionalOnProperty(prefix = "aegis.bugle", name = "enabled", havingValue = "true", matchIfMissing = true)
-public class PulsarProducer implements BugleProducer {
+@ConditionalOnProperty(prefix = "aegis.bugle", name = "enabled", havingValue = "true")
+public class PulsarPublisher implements BuglePublisher {
 
     private final PulsarClient pulsarClient;
     private final ObjectMapper objectMapper;

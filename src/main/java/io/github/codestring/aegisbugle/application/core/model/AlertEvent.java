@@ -1,8 +1,8 @@
-package io.github.codestring.aegisbugle.application.domain.model;
+package io.github.codestring.aegisbugle.application.core.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.github.codestring.aegisbugle.application.domain.BugleAlertException;
+import io.github.codestring.aegisbugle.application.core.BugleAlertException;
 import lombok.*;
 
 import java.time.Instant;

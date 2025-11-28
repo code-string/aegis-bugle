@@ -1,7 +1,7 @@
 package io.github.codestring.aegisbugle.adapter.out;
 
-import io.github.codestring.aegisbugle.application.domain.model.AlertEvent;
-import io.github.codestring.aegisbugle.application.domain.model.BugleEvent;
+import io.github.codestring.aegisbugle.application.core.model.AlertEvent;
+import io.github.codestring.aegisbugle.application.core.model.BugleEvent;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 

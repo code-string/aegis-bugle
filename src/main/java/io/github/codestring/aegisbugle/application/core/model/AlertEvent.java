@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.codestring.aegisbugle.application.core.BugleAlertException;
 import lombok.*;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
 import java.util.Map;
@@ -50,9 +51,9 @@ public class AlertEvent {
     }
 
     private String generateAlertId() throws BugleAlertException {
-        if(serviceName == null || serviceName.isEmpty()) {
+        if(StringUtils.isEmpty(this.serviceName) || StringUtils.SPACE.equals(this.serviceName)) {
             throw new BugleAlertException("");
         }
-        return "alert-".concat(serviceName.concat("-")) + Instant.now().toEpochMilli() + "-" + System.nanoTime();
+        return "alert-".concat(this.serviceName.concat("-")) + Instant.now().toEpochMilli() + "-" + System.nanoTime();
     }
 }

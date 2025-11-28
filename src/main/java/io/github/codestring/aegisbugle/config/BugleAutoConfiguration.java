@@ -5,6 +5,8 @@ import io.github.codestring.aegisbugle.application.core.service.BugleAlertServic
 import io.github.codestring.aegisbugle.application.port.out.BuglePublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.shade.com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,8 +16,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.pulsar.core.PulsarTemplate;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -50,6 +57,22 @@ public class BugleAutoConfiguration {
     public NoOpPublisher noOpPublisher() {
         log.warn("Aegis Bugle Starter is included but 'aegis.bugle.broker-type' is not set or invalid. No messages will be published.");
         return new NoOpPublisher();
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "aegis.bugle", name = "broker-type", havingValue = "kafka")
+    public ProducerFactory<String, String> producerFactory(BugleProperties properties) {
+        Map<String, Object> configProps = new HashMap<>();
+        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, properties.getBrokerUrl());
+        configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        return new DefaultKafkaProducerFactory<>(configProps);
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "aegis.bugle", name = "broker-type", havingValue = "kafka")
+    public KafkaTemplate<String, String> kafkaTemplate(BugleProperties properties) {
+        return new KafkaTemplate<>(producerFactory(properties));
     }
 
     @Bean

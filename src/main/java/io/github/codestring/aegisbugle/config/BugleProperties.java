@@ -20,7 +20,6 @@ public class BugleProperties {
     private String brokerUrl;
     private boolean enabled;
     private Environment environment;
-    private String topic;
     private int operationTimeoutMs;
     private int connectionTimeoutMs;
 }

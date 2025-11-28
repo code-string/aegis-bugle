@@ -31,7 +31,7 @@ public class BugleEvent {
     @JsonProperty("severity")
     private AlertSeverity severity;
 
-    private String topicName;
+    private String topic;
 
     @JsonProperty("metadata")
     private Map<String, Object> metadata;

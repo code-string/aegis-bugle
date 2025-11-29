@@ -17,9 +17,42 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class BugleProperties {
     private String serviceName;
     private BrokerType brokerType;
-    private String brokerUrl;
     private boolean enabled;
+    private Pulsar pulsar;
+    private Kafka kafka;
+    private RabbitMq rabbitmq;
     private Environment environment;
     private int operationTimeoutMs;
     private int connectionTimeoutMs;
+
+    @Getter
+    @Setter
+    public static class Pulsar{
+        private String serviceUrl;
+        private int operationTimeoutMs;
+        private int connectionTimeoutMs;
+        private int maxLookupRequestMs;
+        private int lookupTimeout;
+        private int keepAliveIntervalMs;
+    }
+
+    @Setter
+    @Getter
+    public static class Kafka{
+        private String bootstrapServers;
+        private String keySerializer;
+        private String valueSerializer;
+    }
+
+    @Setter
+    @Getter
+    public static class RabbitMq{
+        private String host = "localhost";
+        private Integer port = 5672;
+        private String username = "guest";
+        private String password = "guest";
+        private String virtualHost = "/";
+        private int connectionTimeoutMs;
+        private String defaultExchange;
+    }
 }

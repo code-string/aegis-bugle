@@ -5,5 +5,5 @@ public enum Environment {
     STAGING,
     SYSTEST,
     PROD,
-
+    LOCAL;
 }

@@ -43,6 +43,9 @@ public class AlertEvent {
     @JsonProperty("environment")
     private String environment;
 
+    private String exchange;
+    private String routingKey;
+
     @JsonProperty("metadata")
     private Map<String, Object> metadata;
 

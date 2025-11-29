@@ -1,5 +1,6 @@
 package io.github.codestring.aegisbugle.adapter.out;
 
+import io.github.codestring.aegisbugle.application.core.PublishException;
 import io.github.codestring.aegisbugle.application.core.model.AlertEvent;
 import io.github.codestring.aegisbugle.application.port.out.BuglePublisher;
 import lombok.RequiredArgsConstructor;
@@ -9,10 +10,12 @@ import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.Schema;
 import org.apache.pulsar.shade.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.pulsar.shade.com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
+@ConditionalOnProperty(prefix = "aegis.bugle", name = "broker-type", havingValue = "pulsar")
 public class PulsarPublisher implements BuglePublisher {
 
     private final PulsarClient pulsarClient;
@@ -27,7 +30,7 @@ public class PulsarPublisher implements BuglePublisher {
                 producer.send(bytes);
             }
         } catch (JsonProcessingException | PulsarClientException e) {
-            throw new RuntimeException(e);
+            throw new PublishException(e.getMessage());
         }
     }
 
@@ -39,7 +42,7 @@ public class PulsarPublisher implements BuglePublisher {
                 producer.send(bytes);
             }
         }catch (JsonProcessingException | PulsarClientException ex){
-            throw new RuntimeException(ex);
+            throw new PublishException(ex.getMessage());
         }
     }
 }

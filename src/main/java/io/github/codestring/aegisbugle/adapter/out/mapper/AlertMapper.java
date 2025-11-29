@@ -1,4 +1,4 @@
-package io.github.codestring.aegisbugle.adapter.out;
+package io.github.codestring.aegisbugle.adapter.out.mapper;
 
 import io.github.codestring.aegisbugle.application.core.model.AlertEvent;
 import io.github.codestring.aegisbugle.application.core.model.BugleEvent;

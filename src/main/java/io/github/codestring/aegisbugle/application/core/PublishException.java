@@ -1,0 +1,11 @@
+package io.github.codestring.aegisbugle.application.core;
+
+public class PublishException extends RuntimeException{
+    public PublishException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public PublishException(String message) {
+        super(message);
+    }
+}

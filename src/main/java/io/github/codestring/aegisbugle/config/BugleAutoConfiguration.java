@@ -1,15 +1,20 @@
 package io.github.codestring.aegisbugle.config;
 
 import io.github.codestring.aegisbugle.adapter.out.*;
+import io.github.codestring.aegisbugle.adapter.out.mapper.AlertMapper;
 import io.github.codestring.aegisbugle.application.core.service.BugleAlertService;
 import io.github.codestring.aegisbugle.application.port.out.BuglePublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
-import org.apache.pulsar.shade.com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -31,23 +36,24 @@ import java.util.concurrent.TimeUnit;
 @EnableConfigurationProperties(BugleProperties.class)
 @ConditionalOnProperty(prefix = "aegis.bugle", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class BugleAutoConfiguration {
+    private final BugleProperties properties;
 
     @Bean
     @ConditionalOnClass(PulsarTemplate.class)
     @ConditionalOnProperty(prefix = "aegis.bugle", name = "broker-type", havingValue = "pulsar")
-    public PulsarClient pulsarClient(BugleProperties properties) throws PulsarClientException {
+    public PulsarClient pulsarClient() throws PulsarClientException {
         log.info("Creating Pulsar client with properties {}", properties);
         return PulsarClient.builder().
-                serviceUrl(properties.getBrokerUrl())
+                serviceUrl(properties.getPulsar().getServiceUrl())
                 .operationTimeout(properties.getOperationTimeoutMs(), TimeUnit.MILLISECONDS)
                 .connectionTimeout(properties.getConnectionTimeoutMs(), TimeUnit.MILLISECONDS)
-                .keepAliveInterval(30, TimeUnit.SECONDS)
-                .maxLookupRequests(50000)
-                .lookupTimeout(30, TimeUnit.SECONDS).build();
+                .keepAliveInterval(properties.getPulsar().getKeepAliveIntervalMs(), TimeUnit.MILLISECONDS)
+                .maxLookupRequests(properties.getPulsar().getMaxLookupRequestMs())
+                .lookupTimeout(properties.getPulsar().getLookupTimeout(), TimeUnit.MILLISECONDS).build();
     }
 
     @Bean
-    public BugleAlertService alertService(BugleProperties properties, BuglePublisher buglePublisher, AlertMapper mapper){
+    public BugleAlertService alertService(BuglePublisher buglePublisher, @Autowired AlertMapper mapper){
         log.info("Creating alert service with properties {}", properties);
         return new BugleAlertService(properties, buglePublisher, mapper);
     }
@@ -61,18 +67,60 @@ public class BugleAutoConfiguration {
 
     @Bean
     @ConditionalOnProperty(prefix = "aegis.bugle", name = "broker-type", havingValue = "kafka")
-    public ProducerFactory<String, String> producerFactory(BugleProperties properties) {
+    public ProducerFactory<String, String> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
-        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, properties.getBrokerUrl());
-        configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, properties.getKafka().getBootstrapServers());
+        configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, properties.getKafka().getKeySerializer());
+        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, properties.getKafka().getValueSerializer());
         return new DefaultKafkaProducerFactory<>(configProps);
     }
 
     @Bean
     @ConditionalOnProperty(prefix = "aegis.bugle", name = "broker-type", havingValue = "kafka")
-    public KafkaTemplate<String, String> kafkaTemplate(BugleProperties properties) {
-        return new KafkaTemplate<>(producerFactory(properties));
+    public KafkaTemplate<String, String> kafkaTemplate() {
+        return new KafkaTemplate<>(producerFactory());
+    }
+
+    @Bean
+    @ConditionalOnClass(RabbitTemplate.class)
+    @ConditionalOnProperty(prefix = "aegis.bugle", name = "broker-type", havingValue = "rabbitmq")
+    public CachingConnectionFactory rabbitConnectionFactory() {
+        log.info("Creating RabbitMQ connection factory with properties {}", properties);
+        CachingConnectionFactory connectionFactory = new CachingConnectionFactory();
+
+        BugleProperties.RabbitMq rabbitProps = properties.getRabbitmq();
+        connectionFactory.setHost(properties.getRabbitmq().getHost());
+        connectionFactory.setPort(rabbitProps.getPort());
+        connectionFactory.setUsername(rabbitProps.getUsername());
+        connectionFactory.setPassword(rabbitProps.getPassword());
+
+        if (rabbitProps.getVirtualHost() != null) {
+            connectionFactory.setVirtualHost(rabbitProps.getVirtualHost());
+        }
+
+        if (properties.getRabbitmq().getConnectionTimeoutMs() != 0) {
+            connectionFactory.setConnectionTimeout(properties.getConnectionTimeoutMs());
+        }
+
+        return connectionFactory;
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "aegis.bugle", name = "broker-type", havingValue = "rabbitmq")
+    @ConditionalOnMissingBean(MessageConverter.class)
+    public MessageConverter jsonMessageConverter(ObjectMapper objectMapper) {
+        return new Jackson2JsonMessageConverter(objectMapper);
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "aegis.bugle", name = "broker-type", havingValue = "rabbitmq")
+    public RabbitTemplate rabbitTemplate(CachingConnectionFactory connectionFactory,
+                                         MessageConverter messageConverter) {
+        log.info("Creating RabbitMQ template");
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        rabbitTemplate.setMessageConverter(messageConverter);
+
+        return rabbitTemplate;
     }
 
     @Bean

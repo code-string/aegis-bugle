@@ -33,6 +33,9 @@ public class BugleEvent {
 
     private String topic;
 
+    private String exchange;
+    private String routingKey;
+
     @JsonProperty("metadata")
     private Map<String, Object> metadata;
 }

@@ -45,8 +45,8 @@ public class BugleAutoConfiguration {
         log.info("Creating Pulsar client with properties {}", properties);
         return PulsarClient.builder().
                 serviceUrl(properties.getPulsar().getServiceUrl())
-                .operationTimeout(properties.getOperationTimeoutMs(), TimeUnit.MILLISECONDS)
-                .connectionTimeout(properties.getConnectionTimeoutMs(), TimeUnit.MILLISECONDS)
+                .operationTimeout(properties.getPulsar().getOperationTimeoutMs(), TimeUnit.MILLISECONDS)
+                .connectionTimeout(properties.getPulsar().getConnectionTimeoutMs(), TimeUnit.MILLISECONDS)
                 .keepAliveInterval(properties.getPulsar().getKeepAliveIntervalMs(), TimeUnit.MILLISECONDS)
                 .maxLookupRequests(properties.getPulsar().getMaxLookupRequestMs())
                 .lookupTimeout(properties.getPulsar().getLookupTimeout(), TimeUnit.MILLISECONDS).build();
@@ -99,7 +99,7 @@ public class BugleAutoConfiguration {
         }
 
         if (properties.getRabbitmq().getConnectionTimeoutMs() != 0) {
-            connectionFactory.setConnectionTimeout(properties.getConnectionTimeoutMs());
+            connectionFactory.setConnectionTimeout(properties.getRabbitmq().getConnectionTimeoutMs());
         }
 
         return connectionFactory;

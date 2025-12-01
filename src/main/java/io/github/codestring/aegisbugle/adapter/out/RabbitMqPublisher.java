@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.codestring.aegisbugle.application.core.PublishException;
 import io.github.codestring.aegisbugle.application.core.model.AlertEvent;
+import io.github.codestring.aegisbugle.application.core.model.FailureMessage;
 import io.github.codestring.aegisbugle.application.port.out.BuglePublisher;
 import io.github.codestring.aegisbugle.config.BugleProperties;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ public class RabbitMqPublisher implements BuglePublisher {
             log.debug("Publishing message to RabbitMQ - Exchange: {}, Routing Key: {}",
                     event.getExchange(), event.getRoutingKey());
             String routingKey = event.getRoutingKey();
-            String exchange = event.getExchange();
+            String exchange = getExchange(event);
             event.setExchange(null);
             event.setRoutingKey(null);
             String messageJson = objectMapper.writeValueAsString(event);
@@ -51,14 +52,48 @@ public class RabbitMqPublisher implements BuglePublisher {
     }
 
 
-
+    @Deprecated(forRemoval = true)
     @Override
     public <T> void sendAlert(T event, String topic) {
 
     }
 
-    private String getExchange() {
+    public void publishFailure(String originalDestination, AlertEvent message, Throwable error) {
+        if (!properties.getFailure().isEnabled()) {
+            log.warn("Failure handling is disabled. Skipping failure message publication.");
+            return;
+        }
+
+        try {
+            String failureDestination = properties.getFailure().getDestination();
+
+            FailureMessage failureMessage = FailureMessage.builder()
+                    .originalDestination(originalDestination)
+                    .message(message)
+                    .errorMessage(error.getMessage())
+                    .errorClass(error.getClass().getName())
+                    .timestamp(System.currentTimeMillis())
+                    .build();
+
+            log.debug("Publishing failure message to RabbitMQ - Queue: {}", failureDestination);
+
+            String messageJson = objectMapper.writeValueAsString(failureMessage);
+
+            // Publish to failure queue/exchange
+            String exchange = getExchange(message);
+            rabbitTemplate.convertAndSend(exchange, failureDestination, messageJson);
+
+            log.info("Successfully published failure message to RabbitMQ - Queue: {}",
+                    failureDestination);
+
+        } catch (Exception e) {
+            log.error("Failed to publish failure message to RabbitMQ", e);
+            // Don't throw exception here to avoid cascading failures
+        }
+    }
+
+    private String getExchange(AlertEvent event) {
         String defaultExchange = properties.getRabbitmq().getDefaultExchange();
-        return defaultExchange != null ? defaultExchange : "";
+        return event.getExchange() != null ? event.getExchange() : defaultExchange;
     }
 }

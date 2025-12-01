@@ -18,17 +18,16 @@ public class BugleProperties {
     private String serviceName;
     private BrokerType brokerType;
     private boolean enabled;
-    private Pulsar pulsar;
-    private Kafka kafka;
-    private RabbitMq rabbitmq;
+    private Pulsar pulsar = new Pulsar();
+    private Kafka kafka = new Kafka();
+    private RabbitMq rabbitmq = new RabbitMq();
     private Environment environment;
-    private int operationTimeoutMs;
-    private int connectionTimeoutMs;
+    private Failure failure = new Failure();
 
     @Getter
     @Setter
     public static class Pulsar{
-        private String serviceUrl;
+        private String serviceUrl = "pulsar://localhost:6650";
         private int operationTimeoutMs;
         private int connectionTimeoutMs;
         private int maxLookupRequestMs;
@@ -39,7 +38,7 @@ public class BugleProperties {
     @Setter
     @Getter
     public static class Kafka{
-        private String bootstrapServers;
+        private String bootstrapServers = "localhost:9092";
         private String keySerializer;
         private String valueSerializer;
     }
@@ -54,5 +53,17 @@ public class BugleProperties {
         private String virtualHost = "/";
         private int connectionTimeoutMs;
         private String defaultExchange;
+    }
+
+    @Setter
+    @Getter
+    public static class Failure {
+        private boolean enabled = true;
+        private String destination = "aegis-bugle-failures";
+
+        /**
+         * Maximum retry attempts before sending to failure destination
+         */
+        private Integer maxRetries = 3;
     }
 }

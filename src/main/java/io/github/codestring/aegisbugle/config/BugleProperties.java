@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 
@@ -39,8 +40,8 @@ public class BugleProperties {
     @Getter
     public static class Kafka{
         private String bootstrapServers = "localhost:9092";
-        private String keySerializer;
-        private String valueSerializer;
+        private String keySerializer = StringSerializer.class.getName();
+        private String valueSerializer = StringSerializer.class.getName();
     }
 
     @Setter

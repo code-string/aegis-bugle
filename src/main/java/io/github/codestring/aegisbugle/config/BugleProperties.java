@@ -2,10 +2,7 @@ package io.github.codestring.aegisbugle.config;
 
 import io.github.codestring.aegisbugle.application.core.model.BrokerType;
 import io.github.codestring.aegisbugle.application.core.model.Environment;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -27,6 +24,9 @@ public class BugleProperties {
 
     @Getter
     @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Pulsar{
         private String serviceUrl = "pulsar://localhost:6650";
         private int operationTimeoutMs;
@@ -38,6 +38,9 @@ public class BugleProperties {
 
     @Setter
     @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Kafka{
         private String bootstrapServers = "localhost:9092";
         private String keySerializer = StringSerializer.class.getName();
@@ -46,6 +49,9 @@ public class BugleProperties {
 
     @Setter
     @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class RabbitMq{
         private String host = "localhost";
         private Integer port = 5672;
@@ -58,6 +64,9 @@ public class BugleProperties {
 
     @Setter
     @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Failure {
         private boolean enabled = true;
         private String destination = "aegis-bugle-failures";

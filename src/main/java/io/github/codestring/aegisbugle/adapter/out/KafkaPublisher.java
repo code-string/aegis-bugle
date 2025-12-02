@@ -4,15 +4,11 @@ import io.github.codestring.aegisbugle.application.core.model.AlertEvent;
 import io.github.codestring.aegisbugle.application.port.out.BuglePublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.stereotype.Component;
 
 
 @RequiredArgsConstructor
-@Component
 @Slf4j
-@ConditionalOnProperty(prefix = "aegis.bugle", name = "broker-type", havingValue = "kafka")
 public class KafkaPublisher implements BuglePublisher {
 
     private final KafkaTemplate<String, String> kafkaTemplate;

@@ -10,12 +10,8 @@ import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.Schema;
 import org.apache.pulsar.shade.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.pulsar.shade.com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
-@Component
-@ConditionalOnProperty(prefix = "aegis.bugle", name = "broker-type", havingValue = "pulsar")
 public class PulsarPublisher implements BuglePublisher {
 
     private final PulsarClient pulsarClient;

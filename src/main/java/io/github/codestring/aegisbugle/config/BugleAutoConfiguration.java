@@ -21,6 +21,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.annotation.Order;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
@@ -56,6 +57,32 @@ public class BugleAutoConfiguration {
     public BugleAlertService alertService(BuglePublisher buglePublisher, @Autowired AlertMapper mapper){
         log.info("Creating alert service with properties {}", properties);
         return new BugleAlertService(properties, buglePublisher, mapper);
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "aegis.bugle", name = "broker-type", havingValue = "kafka")
+    public KafkaPublisher kafkaPublisher() {
+        log.info("Aegis Bugle Starter 'aegis.bugle.broker-type' is kafka. Message will be sent via kafka");
+        return new KafkaPublisher(kafkaTemplate());
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "aegis.bugle", name = "broker-type", havingValue = "pulsar")
+    public PulsarPublisher pulsarPublisher() throws PulsarClientException {
+        log.info("Aegis Bugle Starter 'aegis.bugle.broker-type' is pulsar. Message will be sent via pulsar");
+
+        org.apache.pulsar.shade.com.fasterxml.jackson.databind.ObjectMapper objectMapper = new
+                org.apache.pulsar.shade.com.fasterxml.jackson.databind.ObjectMapper();
+        return new PulsarPublisher(pulsarClient(), objectMapper);
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "aegis.bugle", name = "broker-type", havingValue = "rabbitmq")
+    public RabbitMqPublisher rabbitMqPublisher(){
+        log.info("Aegis Bugle Starter 'aegis.bugle.broker-type' is rabbitmq. Message will be sent via rabbitmq");
+        return new RabbitMqPublisher(
+                rabbitTemplate(rabbitConnectionFactory(), jsonMessageConverter(objectMapper())),
+                properties, objectMapper());
     }
 
     @Bean

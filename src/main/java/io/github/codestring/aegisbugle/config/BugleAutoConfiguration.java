@@ -2,6 +2,7 @@ package io.github.codestring.aegisbugle.config;
 
 import io.github.codestring.aegisbugle.adapter.out.*;
 import io.github.codestring.aegisbugle.adapter.out.mapper.AlertMapper;
+import io.github.codestring.aegisbugle.adapter.out.mapper.AlertMapperImpl;
 import io.github.codestring.aegisbugle.application.core.service.BugleAlertService;
 import io.github.codestring.aegisbugle.application.port.out.BuglePublisher;
 import lombok.RequiredArgsConstructor;
@@ -112,11 +113,11 @@ public class BugleAutoConfiguration {
     @ConditionalOnClass(RabbitTemplate.class)
     @ConditionalOnProperty(prefix = "aegis.bugle", name = "broker-type", havingValue = "rabbitmq")
     public CachingConnectionFactory rabbitConnectionFactory() {
-        log.info("Creating RabbitMQ connection factory with properties {}", properties);
+        log.info("Creating RabbitMQ connection factory with properties {}", properties.getRabbitmq());
         CachingConnectionFactory connectionFactory = new CachingConnectionFactory();
 
         BugleProperties.RabbitMq rabbitProps = properties.getRabbitmq();
-        connectionFactory.setHost(properties.getRabbitmq().getHost());
+        connectionFactory.setHost(rabbitProps.getHost());
         connectionFactory.setPort(rabbitProps.getPort());
         connectionFactory.setUsername(rabbitProps.getUsername());
         connectionFactory.setPassword(rabbitProps.getPassword());
@@ -125,8 +126,8 @@ public class BugleAutoConfiguration {
             connectionFactory.setVirtualHost(rabbitProps.getVirtualHost());
         }
 
-        if (properties.getRabbitmq().getConnectionTimeoutMs() != 0) {
-            connectionFactory.setConnectionTimeout(properties.getRabbitmq().getConnectionTimeoutMs());
+        if (rabbitProps.getConnectionTimeoutMs() != 0) {
+            connectionFactory.setConnectionTimeout(rabbitProps.getConnectionTimeoutMs());
         }
 
         return connectionFactory;
@@ -154,5 +155,11 @@ public class BugleAutoConfiguration {
     @ConditionalOnMissingBean
     public ObjectMapper objectMapper() {
         return new ObjectMapper();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public AlertMapper alertMapper() {
+        return new AlertMapperImpl();
     }
 }

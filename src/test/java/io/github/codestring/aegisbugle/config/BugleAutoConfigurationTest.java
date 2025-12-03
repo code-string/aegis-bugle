@@ -48,7 +48,8 @@ class BugleAutoConfigurationTest {
     void shouldLoadNoOpPublisherWhenBrokerTypeNotSet() {
         contextRunner
                 .withBean(AlertMapperImpl.class)
-                .withPropertyValues("aegis.bugle.enabled=true")
+                .withPropertyValues("aegis.bugle.enabled=true",
+                        "aegis.bugle.service-name=testApp")
                 .run(context -> {
 
                     assertThat(context).hasSingleBean(NoOpPublisher.class);
@@ -67,6 +68,7 @@ class BugleAutoConfigurationTest {
                 .withBean(AlertMapperImpl.class)
                 .withPropertyValues(
                         "aegis.bugle.enabled=true",
+                        "aegis.bugle.service-name=testApp",
                         "aegis.bugle.broker-type=kafka",
                         "aegis.bugle.kafka.bootstrap-servers=localhost:9092"
                 )
@@ -86,6 +88,7 @@ class BugleAutoConfigurationTest {
                 .withPropertyValues(
                         "aegis.bugle.enabled=true",
                         "aegis.bugle.broker-type=rabbitmq",
+                        "aegis.bugle.service-name=testApp",
                         "aegis.bugle.rabbitmq.host=localhost",
                         "aegis.bugle.rabbitmq.port=5672",
                         "aegis.bugle.rabbitmq.username=guest",
@@ -108,6 +111,7 @@ class BugleAutoConfigurationTest {
                 .withPropertyValues(
                         "aegis.bugle.enabled=true",
                         "aegis.bugle.broker-type=rabbitmq",
+                        "aegis.bugle.service-name=testApp",
                         "aegis.bugle.rabbitmq.host=test-host",
                         "aegis.bugle.rabbitmq.port=5673",
                         "aegis.bugle.rabbitmq.username=testuser",
@@ -134,7 +138,8 @@ class BugleAutoConfigurationTest {
                 .withBean(AlertMapperImpl.class)
                 .withPropertyValues(
                         "aegis.bugle.enabled=true",
-                        "aegis.bugle.broker-type=kafka"
+                        "aegis.bugle.broker-type=kafka",
+                        "aegis.bugle.service-name=testApp"
                 )
                 .run(context -> {
                     assertThat(context).hasSingleBean(BugleAlertService.class);
@@ -147,6 +152,7 @@ class BugleAutoConfigurationTest {
                 .withBean(AlertMapperImpl.class)
                 .withPropertyValues(
                         "aegis.bugle.enabled=true",
+                        "aegis.bugle.service-name=testApp",
                         "aegis.bugle.broker-type=kafka"
                 )
                 .run(context -> {
@@ -160,6 +166,7 @@ class BugleAutoConfigurationTest {
                 .withBean(AlertMapperImpl.class)
                 .withPropertyValues(
                         "aegis.bugle.enabled=true",
+                        "aegis.bugle.service-name=testApp",
                         "aegis.bugle.broker-type=kafka"
                 )
                 .run(context -> {

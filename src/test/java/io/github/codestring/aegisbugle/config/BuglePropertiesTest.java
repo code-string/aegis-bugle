@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class BuglePropertiesTest {
 
@@ -19,6 +20,7 @@ class BuglePropertiesTest {
         this.contextRunner
                 .withPropertyValues(
                         "aegis.bugle.enabled=true",
+                        "aegis.bugle.service-name=test-service",
                         "aegis.bugle.broker-type=kafka"
                 )
                 .run(context -> {
@@ -37,6 +39,7 @@ class BuglePropertiesTest {
                 .withPropertyValues(
                         "aegis.bugle.enabled=true",
                         "aegis.bugle.broker-type=kafka",
+                        "aegis.bugle.service-name=test-service",
                         "aegis.bugle.kafka.bootstrap-servers=kafka:9092",
                         "aegis.bugle.kafka.key-serializer=org.apache.kafka.common.serialization.StringSerializer",
                         "aegis.bugle.kafka.value-serializer=org.apache.kafka.common.serialization.StringSerializer"
@@ -56,6 +59,7 @@ class BuglePropertiesTest {
                 .withPropertyValues(
                         "aegis.bugle.enabled=true",
                         "aegis.bugle.broker-type=pulsar",
+                        "aegis.bugle.service-name=test-service",
                         "aegis.bugle.pulsar.service-url=pulsar://pulsar:6650",
                         "aegis.bugle.pulsar.operation-timeout-ms=30000",
                         "aegis.bugle.pulsar.connection-timeout-ms=10000"
@@ -74,6 +78,7 @@ class BuglePropertiesTest {
         contextRunner
                 .withPropertyValues(
                         "aegis.bugle.enabled=true",
+                        "aegis.bugle.service-name=test-service",
                         "aegis.bugle.broker-type=rabbitmq",
                         "aegis.bugle.rabbitmq.host=rabbitmq",
                         "aegis.bugle.rabbitmq.port=5672",
@@ -95,11 +100,40 @@ class BuglePropertiesTest {
     }
 
     @Test
+    void shouldFailWhenServiceNamePropertyValueIsNotProvided(){
+        contextRunner
+                .withPropertyValues(
+                        "aegis.bugle.enabled=true",
+                        "aegis.bugle.broker-type=kafka",
+                        "aegis.bugle.service-name="
+                )
+                .run(context -> {
+                    assertThrows(IllegalStateException.class, () -> context.getBean(BugleProperties.class) );
+                });
+    }
+
+    @Test
+    void shouldFailWhenServiceNamePropertyNotSet(){
+        contextRunner
+                .withPropertyValues(
+                        "aegis.bugle.enabled=true",
+                        "aegis.bugle.broker-type=kafka",
+                        "aegis.bugle.failure.enabled=false",
+                        "aegis.bugle.failure.destination=custom-failures",
+                        "aegis.bugle.failure.max-retries=5"
+                )
+                .run(context -> {
+                    assertThrows(IllegalStateException.class, () -> context.getBean(BugleProperties.class) );
+                });
+    }
+
+    @Test
     void shouldLoadFailureProperties() {
         contextRunner
                 .withPropertyValues(
                         "aegis.bugle.enabled=true",
                         "aegis.bugle.broker-type=kafka",
+                        "aegis.bugle.service-name=test-service",
                         "aegis.bugle.failure.enabled=false",
                         "aegis.bugle.failure.destination=custom-failures",
                         "aegis.bugle.failure.max-retries=5"

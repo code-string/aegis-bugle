@@ -2,9 +2,11 @@ package io.github.codestring.aegisbugle.config;
 
 import io.github.codestring.aegisbugle.application.core.model.BrokerType;
 import io.github.codestring.aegisbugle.application.core.model.Environment;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
 
 @ConfigurationProperties(prefix = "aegis.bugle")
@@ -12,7 +14,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
+@Validated
 public class BugleProperties {
+    @NotEmpty(message = "The serviceName property (aegis.bugle.service-name) is mandatory and cannot be empty.")
     private String serviceName;
     private BrokerType brokerType;
     private boolean enabled;
@@ -25,20 +30,22 @@ public class BugleProperties {
     @Getter
     @Setter
     @Builder
+    @ToString
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Pulsar{
         private String serviceUrl = "pulsar://localhost:6650";
-        private int operationTimeoutMs;
-        private int connectionTimeoutMs;
-        private int maxLookupRequestMs;
-        private int lookupTimeout;
-        private int keepAliveIntervalMs;
+        private int operationTimeoutMs = 10000;
+        private int connectionTimeoutMs = 10000;
+        private int maxLookupRequestMs = 10000;
+        private int lookupTimeout = 10000;
+        private int keepAliveIntervalMs = 10000;
     }
 
     @Setter
     @Getter
     @Builder
+    @ToString
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Kafka{
@@ -50,6 +57,7 @@ public class BugleProperties {
     @Setter
     @Getter
     @Builder
+    @ToString
     @NoArgsConstructor
     @AllArgsConstructor
     public static class RabbitMq{
@@ -58,7 +66,7 @@ public class BugleProperties {
         private String username = "guest";
         private String password = "guest";
         private String virtualHost = "/";
-        private int connectionTimeoutMs;
+        private int connectionTimeoutMs = 10000;
         private String defaultExchange;
     }
 
@@ -67,6 +75,7 @@ public class BugleProperties {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    @ToString
     public static class Failure {
         private boolean enabled = true;
         private String destination = "aegis-bugle-failures";

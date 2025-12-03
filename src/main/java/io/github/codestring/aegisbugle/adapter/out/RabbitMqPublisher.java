@@ -2,6 +2,7 @@ package io.github.codestring.aegisbugle.adapter.out;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.codestring.aegisbugle.application.core.BugleAlertException;
 import io.github.codestring.aegisbugle.application.core.PublishException;
 import io.github.codestring.aegisbugle.application.core.model.AlertEvent;
 import io.github.codestring.aegisbugle.application.core.model.FailureMessage;
@@ -23,6 +24,7 @@ public class RabbitMqPublisher implements BuglePublisher {
     @Override
     public void sendAlert(AlertEvent event, String topic) {
         try {
+            event.setAlertId();
             log.debug("Publishing message to RabbitMQ - Exchange: {}, Routing Key: {}",
                     event.getExchange(), event.getRoutingKey());
             String routingKey = event.getRoutingKey();
@@ -31,8 +33,8 @@ public class RabbitMqPublisher implements BuglePublisher {
             event.setRoutingKey(null);
             String messageJson = objectMapper.writeValueAsString(event);
             rabbitTemplate.convertAndSend(exchange, routingKey, messageJson);
-            log.info("Successfully published message to RabbitMQ - Exchange: {}, Routing Key: {}",
-                    exchange, routingKey);
+            log.info("Successfully published message to RabbitMQ - Exchange: {}, Routing Key: {}, message: {}",
+                    exchange, routingKey, messageJson);
 
             event.setExchange(exchange);
             event.setRoutingKey(routingKey);
@@ -43,6 +45,8 @@ public class RabbitMqPublisher implements BuglePublisher {
         }catch (JsonProcessingException e){
             log.error("Error serializing message for RabbitMQ publication", e);
             throw new PublishException("Error serializing message {}", e);
+        } catch (BugleAlertException e) {
+            throw new RuntimeException(e);
         }
 
     }
@@ -88,8 +92,9 @@ public class RabbitMqPublisher implements BuglePublisher {
         }
     }
 
-    private String getExchange(AlertEvent event) {
+    public String getExchange(AlertEvent event) {
         String defaultExchange = properties.getRabbitmq().getDefaultExchange();
+        log.info("RabbitMQ Exchange is {}", defaultExchange);
         return event.getExchange() != null ? event.getExchange() : defaultExchange;
     }
 }

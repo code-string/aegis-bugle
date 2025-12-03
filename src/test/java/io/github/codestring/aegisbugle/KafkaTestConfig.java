@@ -1,14 +1,14 @@
-package io.github.codestring.aegisbugle.config;
+package io.github.codestring.aegisbugle;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.codestring.aegisbugle.adapter.out.mapper.AlertMapper;
 import io.github.codestring.aegisbugle.adapter.out.mapper.AlertMapperImpl;
-import org.apache.pulsar.shade.com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 
 @TestConfiguration
-public class PulsarTestConfig {
+public class KafkaTestConfig {
     @Bean
     @Primary
     public ObjectMapper testObjectMapper() {

@@ -1,5 +1,6 @@
 package io.github.codestring.aegisbugle.adapter.out;
 
+import io.github.codestring.aegisbugle.application.core.BugleAlertException;
 import io.github.codestring.aegisbugle.application.core.model.AlertEvent;
 import io.github.codestring.aegisbugle.application.port.out.BuglePublisher;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,11 @@ public class KafkaPublisher implements BuglePublisher {
 
     @Override
     public void sendAlert(AlertEvent event, String topic) {
+        try {
+            event.setAlertId();
+        } catch (BugleAlertException e) {
+            throw new RuntimeException(e);
+        }
         log.info("Sending alert to topic {}", topic);
         kafkaTemplate.send(topic, event.toString());
     }

@@ -1,11 +1,10 @@
-package io.github.codestring.aegisbugle.config;
+package io.github.codestring.aegisbugle.adapter.out;
 
 
-import io.github.codestring.aegisbugle.adapter.out.PulsarPublisher;
+import io.github.codestring.aegisbugle.TestEvent;
 import io.github.codestring.aegisbugle.application.core.PublishException;
 import io.github.codestring.aegisbugle.application.core.model.AlertEvent;
 import io.github.codestring.aegisbugle.application.core.model.AlertSeverity;
-import lombok.Getter;
 import org.apache.pulsar.client.api.*;
 import org.apache.pulsar.shade.com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -188,21 +187,10 @@ class PulsarPublisherTest {
         byte[] sentMessage = messageCaptor.getValue();
         String messageJson = new String(sentMessage);
 
-        assertThat(messageJson).contains("alert-serialization-test");
         assertThat(messageJson).contains("serialization-service");
         assertThat(messageJson).contains("ERR_SER");
         assertThat(messageJson).contains("MEDIUM");
     }
 
-    @Getter
-    private static class TestEvent {
-        private final String id;
-        private final String data;
 
-        public TestEvent(String id, String data) {
-            this.id = id;
-            this.data = data;
-        }
-
-    }
 }

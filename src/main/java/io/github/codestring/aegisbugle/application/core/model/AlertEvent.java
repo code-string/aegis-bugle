@@ -14,6 +14,7 @@ import java.util.Map;
 @Getter
 @Setter
 @Builder
+@ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AlertEvent {
     @JsonProperty("alert_id")

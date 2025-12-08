@@ -3,6 +3,7 @@ package io.github.codestring.aegisbugle;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.codestring.aegisbugle.adapter.out.mapper.AlertMapper;
 import io.github.codestring.aegisbugle.adapter.out.mapper.AlertMapperImpl;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
@@ -18,6 +19,7 @@ public class KafkaTestConfig {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public AlertMapper alertMapper() {
         return new AlertMapperImpl();
     }

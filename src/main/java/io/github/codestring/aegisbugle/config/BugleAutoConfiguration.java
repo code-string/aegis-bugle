@@ -1,5 +1,7 @@
 package io.github.codestring.aegisbugle.config;
 
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.github.codestring.aegisbugle.adapter.out.*;
 import io.github.codestring.aegisbugle.adapter.out.mapper.AlertMapper;
 import io.github.codestring.aegisbugle.adapter.out.mapper.AlertMapperImpl;
@@ -154,7 +156,11 @@ public class BugleAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public ObjectMapper objectMapper() {
-        return new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        mapper.findAndRegisterModules();
+        return mapper;
     }
 
     @Bean

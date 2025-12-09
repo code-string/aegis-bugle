@@ -48,7 +48,6 @@ class KafkaIntegrationTest {
 
 
     @Test
-
     void shouldPublishMessageToKafkaSuccessfully() {
         // Given
         AlertEvent alertEvent = AlertEvent.builder()

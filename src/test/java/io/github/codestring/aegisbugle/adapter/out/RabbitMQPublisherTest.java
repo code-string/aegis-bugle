@@ -65,6 +65,7 @@ class RabbitMQPublisherTest {
 
     @Test
     void shouldPublishMessageToRabbitMQ() throws Exception {
+        String exchange = "test-exchange";
         // Given
         AlertEvent alertEvent = AlertEvent.builder()
                 .alertId("alert-123")
@@ -73,18 +74,17 @@ class RabbitMQPublisherTest {
                 .errorMessage("Test error")
                 .severity(AlertSeverity.HIGH)
                 .routingKey("test-routing-key")
-                .exchange("test-exchange")
                 .timestamp(LocalDateTime.now().toInstant(ZoneOffset.UTC))
                 .build();
 
-        when(rabbitMQPublisher.getExchange(alertEvent)).thenReturn(alertEvent.getExchange());
+        when(rabbitMQPublisher.getExchange(alertEvent, exchange)).thenReturn(exchange);
 
         // When
-        rabbitMQPublisher.sendAlert(alertEvent, alertEvent.getRoutingKey());
+        rabbitMQPublisher.sendAlert(alertEvent, exchange);
 
         // Then
         verify(rabbitTemplate, times(1)).convertAndSend(
-                eq(alertEvent.getExchange()),
+                eq(exchange),
                 eq(alertEvent.getRoutingKey()),
                 messageCaptor.capture()
         );
@@ -96,16 +96,17 @@ class RabbitMQPublisherTest {
         AlertEvent alertEvent = AlertEvent.builder()
                 .alertId("alert-456")
                 .serviceName("test-service")
+                .routingKey("routing-key")
                 .build();
-        String destination = "test-queue";
+        String destination = "test-exchange";
         when(rabbitMqProperties.getDefaultExchange()).thenReturn("test-exchange1");
 
         // When
-        rabbitMQPublisher.sendAlert(alertEvent, destination);
+        rabbitMQPublisher.sendAlert(alertEvent, null);
 
         // Then
         verify(rabbitTemplate).convertAndSend(
-                eq(alertEvent.getExchange()),
+                eq("test-exchange1"),
                 eq(alertEvent.getRoutingKey()),
                 messageCaptor.capture()
         );
@@ -143,7 +144,6 @@ class RabbitMQPublisherTest {
                 .serviceName("serialize-service")
                 .errorCode("ERR_SER")
                 .routingKey("test-routing-key")
-                .exchange("test-exchange")
                 .severity(AlertSeverity.CRITICAL)
                 .build();
         String destination = "serialize-key";
@@ -174,7 +174,6 @@ class RabbitMQPublisherTest {
                 .alertId("alert-fail")
                 .serviceName("test-service")
                 .routingKey("test-routing-key")
-                .exchange("test-exchange")
                 .build();
         String destination = "fail-key";
 

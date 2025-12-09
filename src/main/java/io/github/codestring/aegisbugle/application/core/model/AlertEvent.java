@@ -7,6 +7,7 @@ import lombok.*;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @NoArgsConstructor
@@ -44,7 +45,7 @@ public class AlertEvent {
     @JsonProperty("environment")
     private String environment;
 
-    private String exchange;
+//    private String exchange;
     private String routingKey;
 
     @JsonProperty("metadata")

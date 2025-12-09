@@ -10,6 +10,7 @@ import io.github.codestring.aegisbugle.application.port.out.BuglePublisher;
 import io.github.codestring.aegisbugle.config.BugleProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
@@ -24,23 +25,26 @@ public class RabbitMqPublisher implements BuglePublisher {
     @Override
     public void sendAlert(AlertEvent event, String topic) {
         try {
+            if(StringUtils.isEmpty(event.getRoutingKey())) {
+                throw new PublishException("Routing key is required");
+            }
             event.setAlertId();
             log.debug("Publishing message to RabbitMQ - Exchange: {}, Routing Key: {}",
-                    event.getExchange(), event.getRoutingKey());
+                    topic, event.getRoutingKey());
             String routingKey = event.getRoutingKey();
-            String exchange = getExchange(event);
-            event.setExchange(null);
+            String exchange = getExchange(event, topic);
+//            event.setExchange(null);
             event.setRoutingKey(null);
             String messageJson = objectMapper.writeValueAsString(event);
             rabbitTemplate.convertAndSend(exchange, routingKey, messageJson);
             log.info("Successfully published message to RabbitMQ - Exchange: {}, Routing Key: {}, message: {}",
                     exchange, routingKey, messageJson);
 
-            event.setExchange(exchange);
+//            event.setExchange(exchange);
             event.setRoutingKey(routingKey);
         }catch (AmqpException e){
             log.error("Failed to publish message to RabbitMQ - Exchange: {}, Routing Key: {}",
-                    event.getExchange(), event.getRoutingKey(), e);
+                    topic, event.getRoutingKey(), e);
             throw new PublishException("Failed to publish message to RabbitMQ {}", e);
         }catch (JsonProcessingException e){
             log.error("Error serializing message for RabbitMQ publication", e);
@@ -80,7 +84,7 @@ public class RabbitMqPublisher implements BuglePublisher {
             String messageJson = objectMapper.writeValueAsString(failureMessage);
 
             // Publish to failure queue/exchange
-            String exchange = getExchange(message);
+            String exchange = getExchange(message, originalDestination);
             rabbitTemplate.convertAndSend(exchange, failureDestination, messageJson);
 
             log.info("Successfully published failure message to RabbitMQ - Queue: {}",
@@ -92,9 +96,9 @@ public class RabbitMqPublisher implements BuglePublisher {
         }
     }
 
-    public String getExchange(AlertEvent event) {
+    public String getExchange(AlertEvent event, String topic) {
         String defaultExchange = properties.getRabbitmq().getDefaultExchange();
         log.info("RabbitMQ Exchange is {}", defaultExchange);
-        return event.getExchange() != null ? event.getExchange() : defaultExchange;
+        return topic != null ? topic : defaultExchange;
     }
 }

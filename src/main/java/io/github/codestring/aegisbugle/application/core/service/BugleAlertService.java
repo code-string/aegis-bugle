@@ -19,6 +19,17 @@ public class BugleAlertService implements BugleFailureAlertUseCase {
     private final AlertMapper alertMapper;
 
 
+    /**
+     * Raises a failure alert for the given BugleEvent.
+     * <p>
+     * Validates the incoming event, maps it to an AlertEvent, enriches it with
+     * service name and environment, generates a unique alertId, and publishes it
+     * to the broker using the event's topic.
+     *
+     * @param event the failure event to process and publish
+     * @throws BugleAlertException if validation fails or alertId generation is invalid
+     */
+    @Override
     public void raiseFailureAlert(BugleEvent event) throws BugleAlertException {
         validateEventMessage(event);
 

@@ -19,6 +19,23 @@ public class PulsarPublisher implements BuglePublisher {
     private final ObjectMapper objectMapper;
 
 
+    /**
+     * Publishes an AlertEvent to the given Pulsar topic as a JSON-serialized byte payload.
+     * <p>
+     * Steps:
+     * - Generates and assigns a unique alertId on the event.
+     * - Serializes the event to JSON using the configured ObjectMapper.
+     * - Creates a byte producer with Schema.BYTES and sends the payload to the specified topic.
+     * <p>
+     * Parameters:
+     * - event: the alert payload to publish; must contain a valid serviceName for ID generation.
+     * - topic: the Pulsar topic to which the alert is sent.
+     * <p>
+     * Throws:
+     * - PublishException if serialization or Pulsar client operations fail.
+     * - RuntimeException wrapping BugleAlertException if alertId generation fails.
+     */
+    @Override
     public void sendAlert(AlertEvent event, String topic) {
         try{
             event.setAlertId();
@@ -34,6 +51,8 @@ public class PulsarPublisher implements BuglePublisher {
         }
     }
 
+
+    @Override
     public <T> void sendAlert(T event, String topic) {
         try {
             String jsonResponse = objectMapper.writeValueAsString(event);

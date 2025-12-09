@@ -14,6 +14,22 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
+
+/**
+ * RabbitMqPublisher publishes AlertEvent messages to RabbitMQ using Spring's RabbitTemplate.
+ * <p>
+ * Responsibilities:
+ * - Validates routing key, generates alertId, serializes events, and sends to a resolved exchange.
+ * - Logs publishing lifecycle and handles AMQP/serialization errors by throwing PublishException.
+ * - Publishes failure details to a configured failure destination when enabled via BugleProperties.
+ * <p>
+ * Methods:
+ * - sendAlert(AlertEvent, String topic): Publishes an alert to the specified topic (exchange) or default exchange.
+ * - sendAlert(T, String topic): Deprecated placeholder, no implementation.
+ * - publishFailure(String originalDestination, AlertEvent message, Throwable error): Sends a FailureMessage with error context.
+ * - getExchange(AlertEvent, String topic): Resolves exchange using provided topic or configured default.
+ */
+
 @Slf4j
 @RequiredArgsConstructor
 public class RabbitMqPublisher implements BuglePublisher {

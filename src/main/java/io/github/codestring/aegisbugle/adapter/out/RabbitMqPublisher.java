@@ -33,14 +33,12 @@ public class RabbitMqPublisher implements BuglePublisher {
                     topic, event.getRoutingKey());
             String routingKey = event.getRoutingKey();
             String exchange = getExchange(event, topic);
-//            event.setExchange(null);
             event.setRoutingKey(null);
             String messageJson = objectMapper.writeValueAsString(event);
             rabbitTemplate.convertAndSend(exchange, routingKey, messageJson);
             log.info("Successfully published message to RabbitMQ - Exchange: {}, Routing Key: {}, message: {}",
                     exchange, routingKey, messageJson);
 
-//            event.setExchange(exchange);
             event.setRoutingKey(routingKey);
         }catch (AmqpException e){
             log.error("Failed to publish message to RabbitMQ - Exchange: {}, Routing Key: {}",
